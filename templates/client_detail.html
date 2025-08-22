@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Détails Client - {{ client.guest_name }} - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="client-detail-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="page-title">
+            <div class="breadcrumb">
+                <a href="{{ url_for('clients') }}" class="breadcrumb-link">
+                    <i class="fas fa-arrow-left"></i> Clients
+                </a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">{{ client.guest_name }}</span>
+            </div>
+            <h1><i class="fas fa-user"></i> {{ client.guest_name }}</h1>
+            <p>Détails du client et historique des séjours</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-secondary" onclick="editClient({{ client.id }})">
+                <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button class="btn btn-primary" onclick="showAddReservationModal()">
+                <i class="fas fa-plus"></i> Nouvelle Réservation
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <!-- Client Information -->
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Informations Client</h3>
+                </div>
+                <div class="card-content">
+                    <div class="client-profile">
+                        <div class="client-avatar-large">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="client-info-main">
+                            <h2>{{ client.guest_name }}</h2>
+                            <div class="client-meta">
+                                {% if client.guest_title %}
+                                    <span class="client-title">{{ client.guest_title }}</span>
+                                {% endif %}
+                                {% if client.vip %}
+                                    <span class="vip-badge">VIP</span>
+                                {% endif %}
+                                <span class="status-badge status-{{ client.statut }}">
+                                    {{ client.statut|title }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>ID Client Opera</label>
+                            <span>{{ client.guest_name_id or 'Non défini' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Email</label>
+                            <span>
+                                {% if client.email %}
+                                    <a href="mailto:{{ client.email }}">{{ client.email }}</a>
+                                {% else %}
+                                    <button class="btn-link" onclick="addEmail({{ client.id }})">
+                                        <i class="fas fa-plus"></i> Ajouter
+                                    </button>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Téléphone</label>
+                            <span>
+                                {% if client.telephone %}
+                                    <a href="tel:{{ client.telephone }}">{{ client.telephone }}</a>
+                                {% else %}
+                                    <button class="btn-link" onclick="addPhone({{ client.id }})">
+                                        <i class="fas fa-plus"></i> Ajouter
+                                    </button>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Date de naissance</label>
+                            <span>{{ client.date_naissance|format_date if client.date_naissance else 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Nationalité</label>
+                            <span>{{ client.nationalite or 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Nombre de séjours</label>
+                            <span>{{ client.nombre_sejours or 0 }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Client depuis</label>
+                            <span>{{ client.created_at|format_date if client.created_at else 'Non défini' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Dernière mise à jour</label>
+                            <span>{{ client.updated_at|format_date if client.updated_at else 'Non défini' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-heart"></i> Préférences</h3>
+                </div>
+                <div class="card-content">
+                    <div class="preferences-grid">
+                        <div class="preference-item">
+                            <h4><i class="fas fa-utensils"></i> Alimentaires</h4>
+                            <p>{{ client.preferences_alimentaires or 'Aucune préférence définie' }}</p>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <h4><i class="fas fa-bed"></i> Chambre</h4>
+                            <p>{{ client.preferences_chambre or 'Aucune préférence définie' }}</p>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <h4><i class="fas fa-concierge-bell"></i> Services</h4>
+                            <p>{{ client.preferences_services or 'Aucune préférence définie' }}</p>
+                        </div>
+                        
+                        <div class="preference-item">
+                            <h4><i class="fas fa-car"></i> Transport</h4>
+                            <p>{{ client.preferences_transport or 'Aucune préférence définie' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        {% if client.notes_internes %}
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-sticky-note"></i> Notes Internes</h3>
+                </div>
+                <div class="card-content">
+                    <div class="notes-content">
+                        {{ client.notes_internes|nl2br }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Reservations History -->
+    <div class="reservations-section">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-calendar-alt"></i> Historique des Réservations</h3>
+                <div class="card-actions">
+                    <button class="btn-icon" onclick="refreshReservations()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content">
+                {% if reservations %}
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Réservation</th>
+                                    <th>Chambre</th>
+                                    <th>Arrivée</th>
+                                    <th>Départ</th>
+                                    <th>Durée</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in reservations %}
+                                <tr>
+                                    <td>
+                                        <span class="reservation-id">{{ reservation.resv_name_id }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="room-info">
+                                            <span class="room-number">{{ reservation.room_no or 'Non assignée' }}</span>
+                                            {% if reservation.room_category_label %}
+                                                <span class="room-category">{{ reservation.room_category_label }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div class="date">{{ reservation.arrival|format_date }}</div>
+                                            {% if reservation.arrival_time %}
+                                                <div class="time">{{ reservation.arrival_time }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div class="date">{{ reservation.departure|format_date }}</div>
+                                            {% if reservation.departure_time %}
+                                                <div class="time">{{ reservation.departure_time }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="duration">{{ reservation.arrival|duration_days(reservation.departure) }} jour(s)</span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ reservation.statut }}">
+                                            {{ reservation.statut|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="viewReservation('{{ reservation.resv_name_id }}')" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="editReservation('{{ reservation.resv_name_id }}')" title="Modifier">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Aucune réservation</h3>
+                        <p>Ce client n'a pas encore de réservation.</p>
+                        <button class="btn btn-primary" onclick="showAddReservationModal()">
+                            <i class="fas fa-plus"></i> Créer une réservation
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Edit Modal -->
+<div id="quick-edit-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Modification rapide</h3>
+            <button class="modal-close" onclick="closeQuickEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="quick-edit-form" class="form">
+                <div class="form-group">
+                    <label id="quick-edit-label">Champ</label>
+                    <input type="text" id="quick-edit-input" name="value">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeQuickEditModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveQuickEdit()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

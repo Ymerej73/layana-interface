@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Paramètres - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-header">
+        <h1><i class="fas fa-cog"></i> Paramètres</h1>
+        <p>Personnalisez votre expérience utilisateur</p>
+    </div>
+
+    <div class="settings-content">
+        <!-- Section Apparence -->
+        <div class="settings-section">
+            <h2><i class="fas fa-palette"></i> Apparence</h2>
+            <div class="settings-card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Thème</h3>
+                        <p>Choisissez entre le mode sombre et le mode clair</p>
+                    </div>
+                    <div class="setting-control">
+                        <div class="theme-selector">
+                            <button class="theme-option" data-theme="light" onclick="setTheme('light')">
+                                <i class="fas fa-sun"></i>
+                                <span>Clair</span>
+                            </button>
+                            <button class="theme-option" data-theme="dark" onclick="setTheme('dark')">
+                                <i class="fas fa-moon"></i>
+                                <span>Sombre</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Langue -->
+        <div class="settings-section">
+            <h2><i class="fas fa-globe"></i> Langue</h2>
+            <div class="settings-card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Langue de l'interface</h3>
+                        <p>Sélectionnez votre langue préférée</p>
+                    </div>
+                    <div class="setting-control">
+                        <select id="language-selector" onchange="setLanguage(this.value)">
+                            <option value="fr" {% if session.get('language', 'fr') == 'fr' %}selected{% endif %}>
+                                🇫🇷 Français
+                            </option>
+                            <option value="en" {% if session.get('language') == 'en' %}selected{% endif %}>
+                                🇬🇧 English
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Notifications -->
+        <div class="settings-section">
+            <h2><i class="fas fa-bell"></i> Notifications</h2>
+            <div class="settings-card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Notifications push</h3>
+                        <p>Recevoir des notifications en temps réel</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="switch">
+                            <input type="checkbox" id="notifications-toggle" onchange="toggleNotifications(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Notifications par email</h3>
+                        <p>Recevoir des notifications par email</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="switch">
+                            <input type="checkbox" id="email-notifications-toggle" onchange="toggleEmailNotifications(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Affichage -->
+        <div class="settings-section">
+            <h2><i class="fas fa-desktop"></i> Affichage</h2>
+            <div class="settings-card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Densité d'affichage</h3>
+                        <p>Choisissez la densité des éléments d'interface</p>
+                    </div>
+                    <div class="setting-control">
+                        <select id="density-selector" onchange="setDensity(this.value)">
+                            <option value="comfortable" {% if session.get('density', 'comfortable') == 'comfortable' %}selected{% endif %}>
+                                Confortable
+                            </option>
+                            <option value="compact" {% if session.get('density') == 'compact' %}selected{% endif %}>
+                                Compact
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Animations</h3>
+                        <p>Activer les animations d'interface</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="switch">
+                            <input type="checkbox" id="animations-toggle" onchange="toggleAnimations(this.checked)" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Sauvegarde -->
+        <div class="settings-section">
+            <h2><i class="fas fa-save"></i> Sauvegarde</h2>
+            <div class="settings-card">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3>Sauvegarde automatique</h3>
+                        <p>Sauvegarder automatiquement les modifications</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="switch">
+                            <input type="checkbox" id="auto-save-toggle" onchange="toggleAutoSave(this.checked)" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="settings-actions">
+            <button class="btn btn-secondary" onclick="resetSettings()">
+                <i class="fas fa-undo"></i> Réinitialiser
+            </button>
+            <button class="btn btn-primary" onclick="saveSettings()">
+                <i class="fas fa-save"></i> Sauvegarder
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

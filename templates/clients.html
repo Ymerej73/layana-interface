@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Clients - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="clients-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1><i class="fas fa-users"></i> Gestion des Clients</h1>
+            <p>Rechercher et gérer les clients de l'hôtel</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="showAddClientModal()">
+                <i class="fas fa-plus"></i> Nouveau Client
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="filters-section">
+        <form class="search-form" onsubmit="return false;">
+            <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par nom ou ID client...">
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="performManualSearch()">Rechercher</button>
+            {% if search %}
+                <a href="{{ url_for('clients') }}" class="btn btn-outline">Effacer</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Clients Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-info">
+                <span>{{ clients|length }} client(s) trouvé(s)</span>
+            </div>
+            <div class="table-actions">
+
+                <button class="btn-icon" onclick="refreshClients()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        {% if clients %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Titre</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Statut</th>
+                            <th>Séjours</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr class="client-row" data-client-id="{{ client.id }}">
+                            <td>
+                                <span class="client-id">{{ client.guest_name_id or 'N/A' }}</span>
+                            </td>
+                            <td>
+                                <div class="client-name-cell">
+                                    <div class="client-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="client-info">
+                                        <div class="client-name">{{ client.guest_name }}</div>
+                                        {% if client.vip %}
+                                            <span class="vip-badge">VIP</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ client.guest_title or 'N/A' }}</td>
+                            <td>
+                                {% if client.email %}
+                                    <span class="email-cell">{{ client.email }}</span>
+                                {% else %}
+                                    <button class="btn-link" onclick="addEmail({{ client.id }})">
+                                        <i class="fas fa-plus"></i> Ajouter
+                                    </button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if client.telephone %}
+                                    <span class="phone-cell">{{ client.telephone }}</span>
+                                {% else %}
+                                    <button class="btn-link" onclick="addPhone({{ client.id }})">
+                                        <i class="fas fa-plus"></i> Ajouter
+                                    </button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ client.statut }}">
+                                    {{ client.statut|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="sejours-count">{{ client.nombre_sejours or 0 }}</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-icon" onclick="viewClient({{ client.id }})" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="editClient({{ client.id }})" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="showClientHistory({{ client.id }})" title="Historique">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+                <div class="pagination">
+                    {% if current_page > 1 %}
+                        <a href="{{ url_for('clients', page=current_page-1, search=search) }}" class="page-link">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for page_num in range(1, total_pages + 1) %}
+                        {% if page_num == current_page %}
+                            <span class="page-link active">{{ page_num }}</span>
+                        {% elif page_num <= 3 or page_num > total_pages - 3 or (page_num >= current_page - 1 and page_num <= current_page + 1) %}
+                            <a href="{{ url_for('clients', page=page_num, search=search) }}" class="page-link">{{ page_num }}</a>
+                        {% elif page_num == 4 and current_page > 5 %}
+                            <span class="page-ellipsis">...</span>
+                        {% elif page_num == total_pages - 3 and current_page < total_pages - 4 %}
+                            <span class="page-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if current_page < total_pages %}
+                        <a href="{{ url_for('clients', page=current_page+1, search=search) }}" class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>Aucun client trouvé</h3>
+                <p>{% if search %}Aucun client ne correspond à votre recherche.{% else %}Aucun client n'a encore été ajouté.{% endif %}</p>
+                {% if not search %}
+                    <button class="btn btn-primary" onclick="showAddClientModal()">
+                        <i class="fas fa-plus"></i> Ajouter le premier client
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add/Edit Client Modal -->
+<div id="client-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3 id="modal-title">Nouveau Client</h3>
+            <button class="modal-close" onclick="closeClientModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="client-form" class="form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="guest_name">Nom complet *</label>
+                        <input type="text" id="guest_name" name="guest_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="guest_name_id">ID Client Opera</label>
+                        <input type="text" id="guest_name_id" name="guest_name_id">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="guest_title">Titre</label>
+                        <select id="guest_title" name="guest_title">
+                            <option value="">Sélectionner un titre</option>
+                            <option value="Mr">Monsieur</option>
+                            <option value="Mrs">Madame</option>
+                            <option value="Ms">Mademoiselle</option>
+                            <option value="Dr">Docteur</option>
+                            <option value="Prof">Professeur</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telephone">Téléphone</label>
+                        <input type="tel" id="telephone" name="telephone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date_naissance">Date de naissance</label>
+                        <input type="date" id="date_naissance" name="date_naissance">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nationalite">Nationalité</label>
+                        <input type="text" id="nationalite" name="nationalite">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="vip">Statut VIP</label>
+                        <select id="vip" name="vip">
+                            <option value="">Standard</option>
+                            <option value="VIP">VIP</option>
+                            <option value="VVIP">VVIP</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statut">Statut</label>
+                        <select id="statut" name="statut">
+                            <option value="nouveau">Nouveau</option>
+                            <option value="actuel">Actuel</option>
+                            <option value="ancien">Ancien</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4>Préférences</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="preferences_alimentaires">Préférences alimentaires</label>
+                            <textarea id="preferences_alimentaires" name="preferences_alimentaires" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preferences_chambre">Préférences chambre</label>
+                            <textarea id="preferences_chambre" name="preferences_chambre" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preferences_services">Préférences services</label>
+                            <textarea id="preferences_services" name="preferences_services" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preferences_transport">Préférences transport</label>
+                            <textarea id="preferences_transport" name="preferences_transport" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4>Notes</h4>
+                    <div class="form-group">
+                        <label for="notes_internes">Notes internes</label>
+                        <textarea id="notes_internes" name="notes_internes" rows="4"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveClient()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Edit Modal -->
+<div id="quick-edit-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Modification rapide</h3>
+            <button class="modal-close" onclick="closeQuickEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="quick-edit-form" class="form">
+                <div class="form-group">
+                    <label id="quick-edit-label">Champ</label>
+                    <input type="text" id="quick-edit-input" name="value">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeQuickEditModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveQuickEdit()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>{{ message_accueil }} !</h1>
+            <p>Bienvenue sur le tableau de bord de l'hôtel Layana</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card--total">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Clients</h3>
+                <div class="stat-number">{{ stats.total_clients or 0 }}</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12% ce mois</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card--today">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Arrivées Aujourd'hui</h3>
+                <div class="stat-number">{{ stats.reservations_jour or 0 }}</div>
+                <div class="stat-change">
+                    <i class="fas fa-clock"></i>
+                    <span>En attente</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card--active">
+            <div class="stat-icon">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Séjours en Cours</h3>
+                <div class="stat-number">{{ stats.reservations_en_cours or 0 }}</div>
+                <div class="stat-change">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Actifs</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card--future">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Réservations Futures</h3>
+                <div class="stat-number">{{ stats.reservations_futures or 0 }}</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+5 cette semaine</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div class="dashboard-left">
+            <!-- Today's Arrivals -->
+            <div class="card arrivals-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-day"></i> Arrivées Aujourd'hui</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="refreshArrivals()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    {% if reservations_jour %}
+                        <div class="arrivals-list">
+                            {% for reservation in reservations_jour %}
+                            <div class="arrival-item clickable" onclick="viewArrivalDetails('{{ reservation.resv_name_id }}')">
+                                <div class="arrival-info">
+                                    <div class="guest-name">
+                                        {% if reservation.client_principal %}
+                                            {{ reservation.client_principal.guest_name }}
+                                        {% else %}
+                                            Réservation {{ reservation.resv_name_id }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="arrival-details">
+                                        <span class="room-number">
+                                            <i class="fas fa-door-open"></i>
+                                            Chambre {{ reservation.room_no or 'Non assignée' }}
+                                        </span>
+                                        <span class="arrival-time">
+                                            <i class="fas fa-clock"></i>
+                                            {{ reservation.arrival_time or 'Heure non définie' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="arrival-status">
+                                    <span class="status-badge status-{{ reservation.statut }}">
+                                        {{ reservation.statut|title }}
+                                    </span>
+                                    <i class="fas fa-chevron-right arrival-arrow"></i>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>Aucune arrivée prévue aujourd'hui</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Enhanced Calendar -->
+            <div class="card calendar-card-large">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Calendrier des Réservations</h3>
+                    <div class="calendar-nav">
+                        <button class="btn-icon" onclick="previousMonth()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="current-month">Décembre 2025</span>
+                        <button class="btn-icon" onclick="nextMonth()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div id="calendar-widget-large" class="calendar-widget-large">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                    <div class="calendar-legend">
+                        <div class="legend-item">
+                            <span class="legend-color arrival"></span>
+                            <span>Arrivées</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color departure"></span>
+                            <span>Départs</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="dashboard-right">
+
+
+            <!-- Hotel Status -->
+            <div class="card status-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-hotel"></i> Statut du Système</h3>
+                    <button class="btn-icon" onclick="refreshSystemStatus()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="status-indicators">
+                        <div class="status-indicator" id="supabase-status">
+                            <div class="status-dot status-checking"></div>
+                            <span>Vérification Supabase...</span>
+                        </div>
+                        <div class="status-indicator" id="database-status">
+                            <div class="status-dot status-checking"></div>
+                            <span>Vérification base de données...</span>
+                        </div>
+                        <div class="status-indicator" id="api-status">
+                            <div class="status-dot status-checking"></div>
+                            <span>Vérification API...</span>
+                        </div>
+                    </div>
+                    <div class="status-details" id="status-details">
+                        <div class="status-metric">
+                            <span class="metric-label">Temps de réponse:</span>
+                            <span class="metric-value" id="response-time">--</span>
+                        </div>
+                        <div class="status-metric">
+                            <span class="metric-label">Dernière vérification:</span>
+                            <span class="metric-value" id="last-check">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day Details Panel -->
+            <div class="card day-details-panel" id="day-details-panel">
+                <div class="card-header">
+                    <h3><i class="fas fa-calendar-day"></i> Détails de la journée</h3>
+                    <button class="btn-icon" onclick="closeDayDetails()" id="close-day-details">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div id="day-details-content" class="day-details-content">
+                        <div class="day-details-placeholder">
+                            <i class="fas fa-calendar-plus"></i>
+                            <p>Sélectionnez une date dans le calendrier pour voir les détails</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div id="search-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Recherche Avancée</h3>
+            <button class="modal-close" onclick="closeSearchModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="search-tabs">
+                <button class="tab-btn active" onclick="switchTab('clients')">Clients</button>
+                <button class="tab-btn" onclick="switchTab('reservations')">Réservations</button>
+            </div>
+            
+            <div id="clients-tab" class="tab-content active">
+                <form class="search-form">
+                    <div class="form-group">
+                        <label>Nom du client</label>
+                        <input type="text" name="guest_name" placeholder="Rechercher par nom...">
+                    </div>
+                    <div class="form-group">
+                        <label>ID Client</label>
+                        <input type="text" name="guest_name_id" placeholder="Rechercher par ID...">
+                    </div>
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <select name="statut">
+                            <option value="">Tous les statuts</option>
+                            <option value="nouveau">Nouveau</option>
+                            <option value="actuel">Actuel</option>
+                            <option value="ancien">Ancien</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+            
+            <div id="reservations-tab" class="tab-content">
+                <form class="search-form">
+                    <div class="form-group">
+                        <label>ID Réservation</label>
+                        <input type="text" name="resv_name_id" placeholder="Rechercher par ID...">
+                    </div>
+                    <div class="form-group">
+                        <label>Numéro de chambre</label>
+                        <input type="text" name="room_no" placeholder="Rechercher par chambre...">
+                    </div>
+                    <div class="form-group">
+                        <label>Statut</label>
+                        <select name="statut">
+                            <option value="">Tous les statuts</option>
+                            <option value="futures">Futures</option>
+                            <option value="jour">Jour</option>
+                            <option value="en_cours">En cours</option>
+                            <option value="terminee">Terminée</option>
+                            <option value="annulee">Annulée</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AYORA Dashboard{% endblock %}</title>
+    
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <!-- JavaScript -->
+
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+                    <div class="logo">
+            <img src="{{ url_for('static', filename='images/cropped-Layana-Logo-e1668739493148.png') }}" alt="Layana Hotel" class="logo-image">
+        </div>
+            <nav class="nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="{{ url_for('clients') }}" class="nav-item {% if request.endpoint == 'clients' %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </a>
+                <a href="{{ url_for('clients_actuels') }}" class="nav-item {% if request.endpoint == 'clients_actuels' %}active{% endif %}">
+                    <i class="fas fa-bed"></i>
+                    <span>Clients actuels</span>
+                </a>
+                <a href="{{ url_for('reservations') }}" class="nav-item {% if request.endpoint == 'reservations' %}active{% endif %}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Réservations</span>
+                </a>
+                <a href="{{ url_for('settings') }}" class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+        </div>
+        
+        <div class="header-right">
+            <div class="current-date">
+                <i class="fas fa-calendar-day"></i>
+                <span class="date-text">{{ current_date }}</span>
+            </div>
+            
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">3</span>
+            </div>
+            
+            <div class="theme-toggle">
+                <button class="theme-btn" onclick="toggleTheme()" title="Changer de thème">
+                    <i class="fas fa-sun" id="theme-icon"></i>
+                </button>
+            </div>
+            
+            <div class="user-profile">
+                <div class="avatar-placeholder">{{ session.get('user_name', 'U')[0] if session.get('user_name') else 'U' }}</div>
+                <span class="user-name">{{ session.get('user_name', session.get('user_email', 'Réception')) }}</span>
+                <div class="user-menu">
+                    <div class="user-role">{{ session.get('user_role', 'Utilisateur') }}</div>
+                    <a href="{{ url_for('auth_logout') }}" class="logout-btn" title="Se déconnecter">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            <i class="fas fa-{% if category == 'error' %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+                            <span>{{ message }}{{ session.get('user_role', 'Utilisateur') }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Chargement...</span>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+</body>
+</html>

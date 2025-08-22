@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-title">
+        <h1>
+            <i class="fas fa-bed"></i>
+            Chambres occupées
+        </h1>
+        <p>Vue d'ensemble des chambres actuellement occupées</p>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="stats-summary">
+        <div class="stat-badge">
+            <i class="fas fa-door-open"></i>
+            <span>{{ chambres_actuelles|length }} chambres occupées</span>
+        </div>
+        <div class="stat-badge vip-stat">
+            <i class="fas fa-crown"></i>
+            <span>{{ total_vip }} clients VIP</span>
+        </div>
+    </div>
+
+    <!-- Search and Actions -->
+    <div class="actions-bar">
+        <div class="search-container">
+            <form method="GET" action="{{ url_for('clients_actuels') }}" class="search-form">
+                <div class="search-input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par numéro de chambre ou nom..." class="search-input">
+                </div>
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </form>
+        </div>
+        
+        <div class="action-buttons">
+            <button onclick="refreshClientsActuels()" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+                Actualiser
+            </button>
+        </div>
+    </div>
+
+    <!-- Rooms Grid -->
+    {% if chambres_actuelles %}
+    <div class="rooms-grid">
+        {% for chambre in chambres_actuelles %}
+        <div class="room-card {% if chambre.clients|selectattr('vip')|selectattr('vip', 'ne', '')|list|length > 0 %}vip-room{% endif %}" onclick="viewRoomDetails('{{ chambre.resv_name_id }}')">
+            <div class="room-header">
+                <div class="room-number">
+                    <i class="fas fa-door-open"></i>
+                    <span>{{ chambre.room_no }}</span>
+                    {% if chambre.clients|selectattr('vip')|selectattr('vip', 'ne', '')|list|length > 0 %}
+                    <div class="room-vip-indicator">
+                        <i class="fas fa-crown"></i>
+                        VIP
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="room-category">
+                    {{ chambre.room_category_label }}
+                </div>
+            </div>
+            
+            <div class="room-clients">
+                {% for client in chambre.clients %}
+                <div class="client-item {% if client.vip %}vip{% endif %}">
+                    <div class="client-info">
+                        <div class="client-name">
+                            {% if client.guest_title %}{{ client.guest_title }} {% endif %}{{ client.guest_name }}
+                        </div>
+                        <div class="client-details">
+                            <div class="client-role">
+                                {{ client.role }}
+                            </div>
+                            {% if client.vip and client.vip != '' %}
+                            <div class="vip-level">
+                                {{ client.vip }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if client.vip and client.vip != '' %}
+                    <div class="vip-badge">
+                        <i class="fas fa-crown"></i>
+                        {{ client.vip }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="room-footer">
+                <div class="room-dates">
+                    <span class="date-label">Arrivée:</span>
+                    <span class="date-value">{{ chambre.arrival|format_date }}</span>
+                </div>
+                <div class="room-dates">
+                    <span class="date-label">Départ:</span>
+                    <span class="date-value">{{ chambre.departure|format_date }}</span>
+                </div>
+            </div>
+            
+            <div class="room-click-hint">
+                <i class="fas fa-chevron-right"></i>
+                Cliquer pour plus d'infos
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages and total_pages > 1 %}
+    <div class="pagination">
+        {% if current_page > 1 %}
+        <a href="{{ url_for('clients_actuels', page=current_page-1, search=search) }}" class="btn btn-outline">
+            <i class="fas fa-chevron-left"></i>
+            Précédent
+        </a>
+        {% endif %}
+        
+        <span class="pagination-info">
+            Page {{ current_page }} sur {{ total_pages }}
+        </span>
+        
+        {% if current_page < total_pages %}
+        <a href="{{ url_for('clients_actuels', page=current_page+1, search=search) }}" class="btn btn-outline">
+            Suivant
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-bed"></i>
+        </div>
+        <h3>Aucune chambre occupée</h3>
+        <p>Aucune chambre n'est actuellement occupée ou ne correspond à votre recherche.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

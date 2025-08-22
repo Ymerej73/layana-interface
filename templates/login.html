@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Layana Resort</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a1c 0%, #2d2d30 50%, #3a3a3d 100%);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            border: none;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        
+        .login-title {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            color: #666666;
+            font-size: 16px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            color: #333333;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .form-input {
+            padding: 14px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #333333;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #C8A76B;
+            box-shadow: 0 0 0 3px rgba(200, 167, 107, 0.15);
+            background: #ffffff;
+        }
+        
+        .form-input::placeholder {
+            color: #999999;
+        }
+        
+        .login-button {
+            background: linear-gradient(135deg, #C8A76B 0%, #B8945A 100%);
+            color: #ffffff;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .login-button:hover {
+            background: linear-gradient(135deg, #B8945A 0%, #A8834A 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(200, 167, 107, 0.4);
+        }
+        
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: #999999;
+            font-size: 12px;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666666;
+            font-size: 14px;
+        }
+        
+        .register-link a {
+            color: #C8A76B;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        
+        .register-link a:hover {
+            color: #B8945A;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="{{ url_for('static', filename='images/cropped-Layana-Logo-e1668739493148.png') }}" alt="Layana Resort" class="login-logo">
+                <h1 class="login-title">Connexion</h1>
+                <p class="login-subtitle">Accédez à l'interface de gestion</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-input" required>
+                </div>
+                
+                <button type="submit" class="login-button" id="loginButton">
+                    <span class="button-text">Se connecter</span>
+                    <span class="loading-spinner" style="display: none;"></span>
+                </button>
+            </form>
+            
+            <div class="footer-text">
+                © 2025 Layana Resort. Tous droits réservés.
+            </div>
+            
+            <div class="register-link">
+                Pas encore de compte ? <a href="{{ url_for('register') }}">S'inscrire</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const supabaseUrl = '{{ supabase_url }}';
+        const supabaseKey = '{{ supabase_anon_key }}';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Éléments du DOM
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+        const buttonText = loginButton.querySelector('.button-text');
+        const loadingSpinner = loginButton.querySelector('.loading-spinner');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Fonction pour afficher les erreurs
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Fonction pour gérer l'état de chargement
+        function setLoading(loading) {
+            if (loading) {
+                buttonText.style.display = 'none';
+                loadingSpinner.style.display = 'inline-block';
+                loginButton.disabled = true;
+            } else {
+                buttonText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+                loginButton.disabled = false;
+            }
+        }
+        
+        // Gestion de la soumission du formulaire
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+            
+            setLoading(true);
+            
+            try {
+                // Connexion avec Supabase
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                if (data.user) {
+                    // Envoyer le token à notre serveur Flask
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            access_token: data.session.access_token,
+                            refresh_token: data.session.refresh_token
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Redirection vers le dashboard
+                        window.location.href = '/';
+                    } else {
+                        throw new Error(result.message || 'Erreur lors de la connexion');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                
+                let errorMessage = 'Erreur de connexion';
+                if (error.message) {
+                    if (error.message.includes('Invalid login credentials')) {
+                        errorMessage = 'Email ou mot de passe incorrect';
+                    } else if (error.message.includes('Email not confirmed')) {
+                        errorMessage = 'Veuillez confirmer votre email';
+                    } else {
+                        errorMessage = error.message;
+                    }
+                }
+                
+                showError(errorMessage);
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        // Vérifier si l'utilisateur est déjà connecté
+        async function checkAuth() {
+            // Vérifier si on vient de se déconnecter
+            const urlParams = new URLSearchParams(window.location.search);
+            const logout = urlParams.get('logout');
+            
+            if (logout === 'true') {
+                // Forcer la déconnexion Supabase
+                console.log('Déconnexion forcée de Supabase...');
+                await supabase.auth.signOut();
+                // Nettoyer l'URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                return;
+            }
+            
+            // Vérifier d'abord si on a une session côté serveur
+            try {
+                const response = await fetch('/debug/session');
+                const sessionData = await response.json();
+                
+                if (sessionData.authenticated) {
+                    // L'utilisateur est connecté côté serveur, rediriger
+                    window.location.href = '/';
+                    return;
+                }
+            } catch (error) {
+                console.log('Erreur lors de la vérification de session:', error);
+            }
+            
+            // Si pas de session côté serveur, vérifier côté client
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // L'utilisateur a une session Supabase mais pas côté serveur
+                // On ne redirige pas automatiquement, on laisse l'utilisateur se reconnecter
+                console.log('Session Supabase détectée mais pas de session côté serveur');
+            }
+        }
+        
+        // Vérifier l'authentification au chargement de la page
+        checkAuth();
+    </script>
+</body>
+</html>

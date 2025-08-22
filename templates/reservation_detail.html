@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Détails Réservation - {{ reservation.resv_name_id }} - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="reservation-detail-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="page-title">
+            <div class="breadcrumb">
+                <a href="{{ url_for('reservations') }}" class="breadcrumb-link">
+                    <i class="fas fa-arrow-left"></i> Réservations
+                </a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">{{ reservation.resv_name_id }}</span>
+            </div>
+            <h1><i class="fas fa-calendar-check"></i> Réservation {{ reservation.resv_name_id }}</h1>
+            <p>Détails complets de la réservation</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-secondary" onclick="editReservation('{{ reservation.resv_name_id }}')">
+                <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button class="btn btn-primary" onclick="changeRoom('{{ reservation.resv_name_id }}')">
+                <i class="fas fa-door-open"></i> Changer chambre
+            </button>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <!-- Reservation Information -->
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Informations Réservation</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>ID Réservation</label>
+                            <span>{{ reservation.resv_name_id }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Statut</label>
+                            <span class="status-badge status-{{ reservation.statut }}">
+                                {{ reservation.statut|title }}
+                            </span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Chambre</label>
+                            <span>{{ reservation.room_no or 'Non assignée' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Catégorie</label>
+                            <span>{{ reservation.room_category_label or 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Date d'arrivée</label>
+                            <span>{{ reservation.arrival|format_date }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Date de départ</label>
+                            <span>{{ reservation.departure|format_date }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Heure d'arrivée</label>
+                            <span>{{ reservation.arrival_time or 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Heure de départ</label>
+                            <span>{{ reservation.departure_time or 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Durée</label>
+                            <span>{{ reservation.arrival|duration_days(reservation.departure) }} jour(s)</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Adultes</label>
+                            <span>{{ reservation.adults or 0 }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Enfants</label>
+                            <span>{{ reservation.children or 0 }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Statut VIP</label>
+                            <span>{% if reservation.vip %}{{ reservation.vip }}{% else %}Standard{% endif %}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Société</label>
+                            <span>{{ reservation.company_name or 'Non définie' }}</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <label>Code tarifaire</label>
+                            <span>{{ reservation.rate_code or 'Non défini' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Information -->
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-users"></i> Informations Clients</h3>
+                </div>
+                <div class="card-content">
+                    {% if client_principal %}
+                        <div class="client-section">
+                            <h4>Client Principal</h4>
+                            <div class="client-card">
+                                <div class="client-avatar-large">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="client-info-main">
+                                    <h3>{{ client_principal.guest_name }}</h3>
+                                    <div class="client-meta">
+                                        {% if client_principal.guest_title %}
+                                            <span class="client-title">{{ client_principal.guest_title }}</span>
+                                        {% endif %}
+                                        {% if client_principal.vip %}
+                                            <span class="vip-badge">VIP</span>
+                                        {% endif %}
+                                        <span class="status-badge status-{{ client_principal.statut }}">
+                                            {{ client_principal.statut|title }}
+                                        </span>
+                                    </div>
+                                    <div class="client-contact">
+                                        {% if client_principal.email %}
+                                            <div><i class="fas fa-envelope"></i> <a href="mailto:{{ client_principal.email }}">{{ client_principal.email }}</a></div>
+                                        {% endif %}
+                                        {% if client_principal.telephone %}
+                                            <div><i class="fas fa-phone"></i> <a href="tel:{{ client_principal.telephone }}">{{ client_principal.telephone }}</a></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="client-actions">
+                                    <button class="btn-icon" onclick="viewClient({{ client_principal.id }})" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="editClient({{ client_principal.id }})" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if client_secondaire %}
+                        <div class="client-section">
+                            <h4>Client Secondaire</h4>
+                            <div class="client-card">
+                                <div class="client-avatar-large">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="client-info-main">
+                                    <h3>{{ client_secondaire.guest_name }}</h3>
+                                    <div class="client-meta">
+                                        {% if client_secondaire.guest_title %}
+                                            <span class="client-title">{{ client_secondaire.guest_title }}</span>
+                                        {% endif %}
+                                        {% if client_secondaire.vip %}
+                                            <span class="vip-badge">VIP</span>
+                                        {% endif %}
+                                        <span class="status-badge status-{{ client_secondaire.statut }}">
+                                            {{ client_secondaire.statut|title }}
+                                        </span>
+                                    </div>
+                                    <div class="client-contact">
+                                        {% if client_secondaire.email %}
+                                            <div><i class="fas fa-envelope"></i> <a href="mailto:{{ client_secondaire.email }}">{{ client_secondaire.email }}</a></div>
+                                        {% endif %}
+                                        {% if client_secondaire.telephone %}
+                                            <div><i class="fas fa-phone"></i> <a href="tel:{{ client_secondaire.telephone }}">{{ client_secondaire.telephone }}</a></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="client-actions">
+                                    <button class="btn-icon" onclick="viewClient({{ client_secondaire.id }})" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="editClient({{ client_secondaire.id }})" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if not client_principal and not client_secondaire %}
+                        <div class="empty-state">
+                            <i class="fas fa-user-slash"></i>
+                            <h3>Aucun client assigné</h3>
+                            <p>Cette réservation n'a pas de client assigné.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Requests and Notes -->
+        {% if reservation.special_requests or reservation.remarques_sejour or reservation.remarques_internes or reservation.list_g_comment_resv_name_id %}
+        <div class="detail-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-sticky-note"></i> Demandes et Notes</h3>
+                </div>
+                <div class="card-content">
+                    <div class="notes-grid">
+                        {% if reservation.list_g_comment_resv_name_id %}
+                        <div class="note-item">
+                            <h4><i class="fas fa-comments"></i> Commentaires de réservation (brut)</h4>
+                            <div class="comment-raw">
+                                <p>{{ reservation.list_g_comment_resv_name_id|nl2br }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reservation.special_requests %}
+                        <div class="note-item">
+                            <h4><i class="fas fa-star"></i> Demandes spéciales</h4>
+                            <p>{{ reservation.special_requests|nl2br }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reservation.remarques_sejour %}
+                        <div class="note-item">
+                            <h4><i class="fas fa-calendar-alt"></i> Remarques séjour</h4>
+                            <p>{{ reservation.remarques_sejour|nl2br }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reservation.remarques_internes %}
+                        <div class="note-item">
+                            <h4><i class="fas fa-eye-slash"></i> Remarques internes</h4>
+                            <p>{{ reservation.remarques_internes|nl2br }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

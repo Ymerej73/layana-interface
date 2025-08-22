@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Réservations - Layana Hotel{% endblock %}
+
+{% block content %}
+<div class="reservations-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1><i class="fas fa-calendar-check"></i> Gestion des Réservations</h1>
+            <p>Gérer les réservations et les chambres de l'hôtel</p>
+        </div>
+        <div class="page-actions">
+            <button class="btn btn-primary" onclick="showAddReservationModal()">
+                <i class="fas fa-plus"></i> Nouvelle Réservation
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="filters-section">
+        <form class="search-form" method="GET" action="{{ url_for('reservations') }}">
+            <div class="search-input">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par nom client, ID réservation ou chambre...">
+            </div>
+            
+            <select name="statut" class="filter-select">
+                <option value="">Tous les statuts</option>
+                <option value="futures" {% if statut_filter == 'futures' %}selected{% endif %}>Futures</option>
+                <option value="jour" {% if statut_filter == 'jour' %}selected{% endif %}>Jour</option>
+                <option value="en_cours" {% if statut_filter == 'en_cours' %}selected{% endif %}>En cours</option>
+                <option value="terminee" {% if statut_filter == 'terminee' %}selected{% endif %}>Terminées</option>
+                <option value="annulee" {% if statut_filter == 'annulee' %}selected{% endif %}>Annulées</option>
+            </select>
+            
+            <button type="submit" class="btn btn-secondary">Filtrer</button>
+            {% if search or statut_filter %}
+                <a href="{{ url_for('reservations') }}" class="btn btn-outline">Effacer</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-item">
+            <i class="fas fa-calendar-day"></i>
+            <span>Aujourd'hui: {{ reservations|selectattr('arrival', 'equalto', today_date)|list|length }}</span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-bed"></i>
+            <span>En cours: {{ reservations|selectattr('statut', 'equalto', 'en_cours')|list|length }}</span>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Futures: {{ reservations|selectattr('statut', 'equalto', 'futures')|list|length }}</span>
+        </div>
+    </div>
+
+    <!-- Reservations Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-info">
+                <span>{{ reservations|length }} réservation(s) trouvée(s)</span>
+            </div>
+            <div class="table-actions">
+
+                <button class="btn-icon" onclick="refreshReservations()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="btn-icon" onclick="showRoomMap()">
+                    <i class="fas fa-map"></i>
+                </button>
+            </div>
+        </div>
+
+        {% if reservations %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Réservation</th>
+                            <th>Client Principal</th>
+                            <th>Chambre</th>
+                            <th>Arrivée</th>
+                            <th>Départ</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr class="reservation-row" data-reservation-id="{{ reservation.resv_name_id }}">
+                            <td>
+                                <span class="reservation-id">{{ reservation.resv_name_id }}</span>
+                            </td>
+                            <td>
+                                {% if reservation.client_principal %}
+                                    <div class="client-info">
+                                        <div class="client-name">{{ reservation.client_principal.guest_name }}</div>
+                                        {% if reservation.client_principal.vip %}
+                                            <span class="vip-badge">VIP</span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="no-client">Aucun client assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="room-info">
+                                    <span class="room-number">{{ reservation.room_no or 'Non assignée' }}</span>
+                                    {% if reservation.room_category_label %}
+                                        <span class="room-category">{{ reservation.room_category_label }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="date-info">
+                                    <div class="date">{{ reservation.arrival|format_date }}</div>
+                                    {% if reservation.arrival_time %}
+                                        <div class="time">{{ reservation.arrival_time }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="date-info">
+                                    <div class="date">{{ reservation.departure|format_date }}</div>
+                                    {% if reservation.departure_time %}
+                                        <div class="time">{{ reservation.departure_time }}</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="duration">{{ reservation.arrival|duration_days(reservation.departure) }} jour(s)</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ reservation.statut }}">
+                                    {{ reservation.statut|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-icon" onclick="viewReservation('{{ reservation.resv_name_id }}')" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="editReservation('{{ reservation.resv_name_id }}')" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="changeRoom('{{ reservation.resv_name_id }}')" title="Changer chambre">
+                                        <i class="fas fa-door-open"></i>
+                                    </button>
+                                    <button class="btn-icon" onclick="showReservationHistory('{{ reservation.resv_name_id }}')" title="Historique">
+                                        <i class="fas fa-history"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+                <div class="pagination">
+                    {% if current_page > 1 %}
+                        <a href="{{ url_for('reservations', page=current_page-1, search=search) }}" class="page-link">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for page_num in range(1, total_pages + 1) %}
+                        {% if page_num == current_page %}
+                            <span class="page-link active">{{ page_num }}</span>
+                        {% elif page_num <= 3 or page_num > total_pages - 3 or (page_num >= current_page - 1 and page_num <= current_page + 1) %}
+                            <a href="{{ url_for('reservations', page=page_num, search=search) }}" class="page-link">{{ page_num }}</a>
+                        {% elif page_num == 4 and current_page > 5 %}
+                            <span class="page-ellipsis">...</span>
+                        {% elif page_num == total_pages - 3 and current_page < total_pages - 4 %}
+                            <span class="page-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if current_page < total_pages %}
+                        <a href="{{ url_for('reservations', page=current_page+1, search=search) }}" class="page-link">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Aucune réservation trouvée</h3>
+                <p>{% if search or statut_filter %}Aucune réservation ne correspond à vos critères.{% else %}Aucune réservation n'a encore été créée.{% endif %}</p>
+                {% if not search and not statut_filter %}
+                    <button class="btn btn-primary" onclick="showAddReservationModal()">
+                        <i class="fas fa-plus"></i> Créer la première réservation
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add/Edit Reservation Modal -->
+<div id="reservation-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3 id="modal-title">Nouvelle Réservation</h3>
+            <button class="modal-close" onclick="closeReservationModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="reservation-form" class="form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="resv_name_id">ID Réservation *</label>
+                        <input type="text" id="resv_name_id" name="resv_name_id" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client_principal_id">Client Principal</label>
+                        <select id="client_principal_id" name="client_principal_id">
+                            <option value="">Sélectionner un client</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client_secondaire_id">Client Secondaire</label>
+                        <select id="client_secondaire_id" name="client_secondaire_id">
+                            <option value="">Sélectionner un client</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="room_no">Numéro de Chambre</label>
+                        <input type="text" id="room_no" name="room_no">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="room_category_label">Catégorie de Chambre</label>
+                        <input type="text" id="room_category_label" name="room_category_label">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="statut">Statut</label>
+                        <select id="statut" name="statut">
+                            <option value="futures">Futures</option>
+                            <option value="jour">Jour</option>
+                            <option value="en_cours">En cours</option>
+                            <option value="terminee">Terminée</option>
+                            <option value="annulee">Annulée</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4>Dates et Horaires</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="arrival">Date d'arrivée *</label>
+                            <input type="date" id="arrival" name="arrival" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="departure">Date de départ *</label>
+                            <input type="date" id="departure" name="departure" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="arrival_time">Heure d'arrivée</label>
+                            <input type="time" id="arrival_time" name="arrival_time">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="departure_time">Heure de départ</label>
+                            <input type="time" id="departure_time" name="departure_time">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4>Occupants</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="adults">Adultes</label>
+                            <input type="number" id="adults" name="adults" min="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="children">Enfants</label>
+                            <input type="number" id="children" name="children" min="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vip">Statut VIP</label>
+                            <select id="vip" name="vip">
+                                <option value="">Standard</option>
+                                <option value="VIP">VIP</option>
+                                <option value="VVIP">VVIP</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="company_name">Société</label>
+                            <input type="text" id="company_name" name="company_name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4>Détails</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="rate_code">Code tarifaire</label>
+                            <input type="text" id="rate_code" name="rate_code">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="special_requests">Demandes spéciales</label>
+                            <textarea id="special_requests" name="special_requests" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="remarques_sejour">Remarques séjour</label>
+                            <textarea id="remarques_sejour" name="remarques_sejour" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="remarques_internes">Remarques internes</label>
+                            <textarea id="remarques_internes" name="remarques_internes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeReservationModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveReservation()">Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Room Change Modal -->
+<div id="room-change-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Changer de Chambre</h3>
+            <button class="modal-close" onclick="closeRoomChangeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="room-change-form" class="form">
+                <div class="form-group">
+                    <label for="new_room_no">Nouveau numéro de chambre</label>
+                    <input type="text" id="new_room_no" name="room_no" required>
+                </div>
+                <div class="form-group">
+                    <label for="room_change_reason">Raison du changement</label>
+                    <textarea id="room_change_reason" name="reason" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeRoomChangeModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="saveRoomChange()">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Room Map Modal -->
+<div id="room-map-modal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3>Carte des Chambres</h3>
+            <button class="modal-close" onclick="closeRoomMapModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="room-map" class="room-map">
+                <!-- Room map will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
