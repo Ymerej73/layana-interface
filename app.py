@@ -1166,4 +1166,5 @@ def test_vip():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5003))
-    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_ENV') != 'production')
+    debug_mode = os.getenv('FLASK_ENV') != 'production'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
