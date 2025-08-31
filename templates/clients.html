@@ -7,12 +7,12 @@
     <!-- Header Section -->
     <div class="page-header">
         <div class="page-title">
-            <h1><i class="fas fa-users"></i> Gestion des Clients</h1>
-            <p>Rechercher et gérer les clients de l'hôtel</p>
+            <h1><i class="fas fa-users"></i> {{ get_text('clients.title') }}</h1>
+            <p>{{ get_text('clients.subtitle') }}</p>
         </div>
         <div class="page-actions">
             <button class="btn btn-primary" onclick="showAddClientModal()">
-                <i class="fas fa-plus"></i> Nouveau Client
+                <i class="fas fa-plus"></i> {{ get_text('clients.new_client') }}
             </button>
         </div>
     </div>
@@ -22,9 +22,9 @@
         <form class="search-form" onsubmit="return false;">
             <div class="search-input">
                 <i class="fas fa-search"></i>
-                <input type="text" name="search" value="{{ search }}" placeholder="Rechercher par nom ou ID client...">
+                <input type="text" name="search" value="{{ search }}" placeholder="{{ get_text('clients.search_placeholder') }}">
             </div>
-            <button type="button" class="btn btn-secondary" onclick="performManualSearch()">Rechercher</button>
+            <button type="button" class="btn btn-secondary" onclick="performManualSearch()">{{ get_text('common.search') }}</button>
             {% if search %}
                 <a href="{{ url_for('clients') }}" class="btn btn-outline">Effacer</a>
             {% endif %}
@@ -50,14 +50,14 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Titre</th>
-                            <th>Email</th>
-                            <th>Téléphone</th>
-                            <th>Statut</th>
-                            <th>Séjours</th>
-                            <th>Actions</th>
+                            <th>{{ get_text('clients.table.id') }}</th>
+                            <th>{{ get_text('clients.table.name') }}</th>
+                            <th>{{ get_text('clients.table.title') }}</th>
+                            <th>{{ get_text('clients.table.email') }}</th>
+                            <th>{{ get_text('clients.table.phone') }}</th>
+                            <th>{{ get_text('clients.table.status') }}</th>
+                            <th>{{ get_text('clients.table.stays') }}</th>
+                            <th>{{ get_text('clients.table.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>

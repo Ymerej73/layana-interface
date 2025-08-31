@@ -4,121 +4,198 @@
 
 {% block content %}
 <div class="settings-container">
+    <!-- Header simplifié -->
     <div class="settings-header">
-        <h1><i class="fas fa-cog"></i> Paramètres</h1>
-        <p>Personnalisez votre expérience utilisateur</p>
+        <h1>Paramètres</h1>
     </div>
 
     <div class="settings-content">
-        <!-- Section Apparence -->
+        <!-- Section Apparence avec design moderne -->
         <div class="settings-section">
-            <h2><i class="fas fa-palette"></i> Apparence</h2>
-            <div class="settings-card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Thème</h3>
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="section-info">
+                    <h2>Apparence</h2>
+                    <p>Personnalisez l'apparence de votre interface</p>
+                </div>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Sélecteur de thème amélioré -->
+                <div class="setting-card theme-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-moon"></i> Thème</h3>
                         <p>Choisissez entre le mode sombre et le mode clair</p>
                     </div>
-                    <div class="setting-control">
-                        <div class="theme-selector">
-                            <button class="theme-option" data-theme="light" onclick="setTheme('light')">
+                    <div class="theme-selector-modern">
+                        <button class="theme-option-modern" data-theme="light" onclick="setTheme('light')">
+                            <div class="theme-icon">
                                 <i class="fas fa-sun"></i>
-                                <span>Clair</span>
-                            </button>
-                            <button class="theme-option" data-theme="dark" onclick="setTheme('dark')">
+                            </div>
+                            <span>Clair</span>
+                            <div class="theme-preview light-preview"></div>
+                        </button>
+                        <button class="theme-option-modern" data-theme="dark" onclick="setTheme('dark')">
+                            <div class="theme-icon">
                                 <i class="fas fa-moon"></i>
-                                <span>Sombre</span>
-                            </button>
+                            </div>
+                            <span>Sombre</span>
+                            <div class="theme-preview dark-preview"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sélecteur de langue amélioré -->
+                <div class="setting-card language-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-globe"></i> Langue</h3>
+                        <p>Sélectionnez votre langue préférée</p>
+                    </div>
+                    <div class="language-selector-modern">
+                        <div class="language-option" data-lang="fr" onclick="setLanguage('fr')">
+                            <div class="flag">🇫🇷</div>
+                            <span>Français</span>
+                            <div class="checkmark {% if session.get('language', 'fr') == 'fr' %}active{% endif %}">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="language-option" data-lang="en" onclick="setLanguage('en')">
+                            <div class="flag">🇬🇧</div>
+                            <span>English</span>
+                            <div class="checkmark {% if session.get('language') == 'en' %}active{% endif %}">
+                                <i class="fas fa-check"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section Langue -->
+        <!-- Section Notifications avec toggles modernes -->
         <div class="settings-section">
-            <h2><i class="fas fa-globe"></i> Langue</h2>
-            <div class="settings-card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Langue de l'interface</h3>
-                        <p>Sélectionnez votre langue préférée</p>
-                    </div>
-                    <div class="setting-control">
-                        <select id="language-selector" onchange="setLanguage(this.value)">
-                            <option value="fr" {% if session.get('language', 'fr') == 'fr' %}selected{% endif %}>
-                                🇫🇷 Français
-                            </option>
-                            <option value="en" {% if session.get('language') == 'en' %}selected{% endif %}>
-                                🇬🇧 English
-                            </option>
-                        </select>
-                    </div>
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="section-info">
+                    <h2>Notifications</h2>
+                    <p>Gérez vos préférences de notifications</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Section Notifications -->
-        <div class="settings-section">
-            <h2><i class="fas fa-bell"></i> Notifications</h2>
-            <div class="settings-card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Notifications push</h3>
+            
+            <div class="settings-grid">
+                <div class="setting-card notification-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-bell"></i> Notifications push</h3>
                         <p>Recevoir des notifications en temps réel</p>
+                        <div class="beta-badge">
+                            <i class="fas fa-flask"></i>
+                            <span>Version Beta</span>
+                        </div>
                     </div>
-                    <div class="setting-control">
-                        <label class="switch">
-                            <input type="checkbox" id="notifications-toggle" onchange="toggleNotifications(this.checked)">
-                            <span class="slider"></span>
+                    <div class="toggle-modern">
+                        <input type="checkbox" id="notifications-toggle" onchange="toggleNotifications(this.checked)">
+                        <label for="notifications-toggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                    <div class="beta-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cette fonctionnalité sera disponible dans une prochaine mise à jour</span>
                     </div>
                 </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Notifications par email</h3>
+
+                <div class="setting-card notification-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-envelope"></i> Notifications email</h3>
                         <p>Recevoir des notifications par email</p>
+                        <div class="beta-badge">
+                            <i class="fas fa-flask"></i>
+                            <span>Version Beta</span>
+                        </div>
                     </div>
-                    <div class="setting-control">
-                        <label class="switch">
-                            <input type="checkbox" id="email-notifications-toggle" onchange="toggleEmailNotifications(this.checked)">
-                            <span class="slider"></span>
+                    <div class="toggle-modern">
+                        <input type="checkbox" id="email-notifications-toggle" onchange="toggleEmailNotifications(this.checked)">
+                        <label for="email-notifications-toggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                    <div class="beta-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cette fonctionnalité sera disponible dans une prochaine mise à jour</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section Affichage -->
+        <!-- Section Affichage avec options avancées -->
         <div class="settings-section">
-            <h2><i class="fas fa-desktop"></i> Affichage</h2>
-            <div class="settings-card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Densité d'affichage</h3>
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <div class="section-info">
+                    <h2>Affichage</h2>
+                    <p>Personnalisez l'apparence de votre interface</p>
+                </div>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="setting-card display-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-compress-arrows-alt"></i> Densitité d'affichage</h3>
                         <p>Choisissez la densité des éléments d'interface</p>
+                        <div class="beta-badge">
+                            <i class="fas fa-flask"></i>
+                            <span>Version Beta</span>
+                        </div>
                     </div>
-                    <div class="setting-control">
-                        <select id="density-selector" onchange="setDensity(this.value)">
-                            <option value="comfortable" {% if session.get('density', 'comfortable') == 'comfortable' %}selected{% endif %}>
-                                Confortable
-                            </option>
-                            <option value="compact" {% if session.get('density') == 'compact' %}selected{% endif %}>
-                                Compact
-                            </option>
-                        </select>
+                    <div class="density-selector-modern">
+                        <div class="density-option" data-density="comfortable" onclick="setDensity('comfortable')">
+                            <div class="density-icon">
+                                <i class="fas fa-expand-arrows-alt"></i>
+                            </div>
+                            <span>Confortable</span>
+                            <div class="checkmark {% if session.get('density', 'comfortable') == 'comfortable' %}active{% endif %}">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <div class="density-option" data-density="compact" onclick="setDensity('compact')">
+                            <div class="density-icon">
+                                <i class="fas fa-compress-arrows-alt"></i>
+                            </div>
+                            <span>Compact</span>
+                            <div class="checkmark {% if session.get('density') == 'compact' %}active{% endif %}">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="beta-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cette fonctionnalité sera disponible dans une prochaine mise à jour</span>
                     </div>
                 </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Animations</h3>
+
+                <div class="setting-card display-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-magic"></i> Animations</h3>
                         <p>Activer les animations d'interface</p>
+                        <div class="beta-badge">
+                            <i class="fas fa-flask"></i>
+                            <span>Version Beta</span>
+                        </div>
                     </div>
-                    <div class="setting-control">
-                        <label class="switch">
-                            <input type="checkbox" id="animations-toggle" onchange="toggleAnimations(this.checked)" checked>
-                            <span class="slider"></span>
+                    <div class="toggle-modern">
+                        <input type="checkbox" id="animations-toggle" onchange="toggleAnimations(this.checked)" checked>
+                        <label for="animations-toggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                    <div class="beta-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cette fonctionnalité sera disponible dans une prochaine mise à jour</span>
                     </div>
                 </div>
             </div>
@@ -126,31 +203,109 @@
 
         <!-- Section Sauvegarde -->
         <div class="settings-section">
-            <h2><i class="fas fa-save"></i> Sauvegarde</h2>
-            <div class="settings-card">
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <h3>Sauvegarde automatique</h3>
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-save"></i>
+                </div>
+                <div class="section-info">
+                    <h2>Sauvegarde</h2>
+                    <p>Gérez vos préférences de sauvegarde</p>
+                </div>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="setting-card save-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-sync-alt"></i> Sauvegarde automatique</h3>
                         <p>Sauvegarder automatiquement les modifications</p>
+                        <div class="beta-badge">
+                            <i class="fas fa-flask"></i>
+                            <span>Version Beta</span>
+                        </div>
                     </div>
-                    <div class="setting-control">
-                        <label class="switch">
-                            <input type="checkbox" id="auto-save-toggle" onchange="toggleAutoSave(this.checked)" checked>
-                            <span class="slider"></span>
+                    <div class="toggle-modern">
+                        <input type="checkbox" id="auto-save-toggle" onchange="toggleAutoSave(this.checked)" checked>
+                        <label for="auto-save-toggle" class="toggle-label">
+                            <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                    <div class="beta-message">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Cette fonctionnalité sera disponible dans une prochaine mise à jour</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Boutons d'action -->
+        <!-- Section Informations système -->
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="section-info">
+                    <h2>Informations système</h2>
+                    <p>Détails sur votre installation</p>
+                </div>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="setting-card info-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-code-branch"></i> Version</h3>
+                        <p>Version actuelle de l'application</p>
+                    </div>
+                    <div class="info-value">
+                        <span class="version-badge">v1.0.0</span>
+                    </div>
+                </div>
+
+                <div class="setting-card info-card">
+                    <div class="setting-header">
+                        <h3><i class="fas fa-database"></i> Base de données</h3>
+                        <p>Statut de la connexion</p>
+                    </div>
+                    <div class="info-value">
+                        <span class="status-badge online">
+                            <i class="fas fa-circle"></i> En ligne
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action avec design moderne -->
         <div class="settings-actions">
-            <button class="btn btn-secondary" onclick="resetSettings()">
-                <i class="fas fa-undo"></i> Réinitialiser
-            </button>
-            <button class="btn btn-primary" onclick="saveSettings()">
-                <i class="fas fa-save"></i> Sauvegarder
-            </button>
+            <div class="beta-notice">
+                <i class="fas fa-flask"></i>
+                <span>Version Beta - Certaines fonctionnalités seront disponibles dans les prochaines mises à jour</span>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary btn-modern" onclick="resetSettings()">
+                    <i class="fas fa-undo"></i>
+                    <span>Réinitialiser</span>
+                </button>
+                <button class="btn btn-primary btn-modern" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    <span>Sauvegarder</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation pour la réinitialisation -->
+<div id="reset-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirmer la réinitialisation</h3>
+        </div>
+        <div class="modal-body">
+            <p>Êtes-vous sûr de vouloir réinitialiser tous vos paramètres ? Cette action ne peut pas être annulée.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeResetModal()">Annuler</button>
+            <button class="btn btn-danger" onclick="confirmReset()">Réinitialiser</button>
         </div>
     </div>
 </div>

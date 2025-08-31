@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Chambres - Layana Hotel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .loading { background: #fff3cd; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Chambres - Layana Hotel</h1>
+        <p>Page de debug pour comprendre pourquoi aucune chambre n'est affichée</p>
+        
+        <button class="btn" onclick="testAPI()">🧪 Tester l'API des Chambres</button>
+        <button class="btn" onclick="testSimple()">🔍 Test Simple (sans filtres)</button>
+        <button class="btn" onclick="clearResult()">🗑️ Effacer</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔄 Test de l\'API des Chambres en cours...';
+            
+            try {
+                const response = await fetch('/api/rooms/status');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+✅ API des Chambres - Succès!
+
+📊 Données reçues:
+${JSON.stringify(data, null, 2)}
+
+🏨 Nombre de chambres: ${Array.isArray(data) ? data.length : 'N/A'}
+
+${Array.isArray(data) && data.length > 0 ? 
+    `📋 Détails des chambres:
+${data.map(room => 
+    `  • Chambre ${room.room_no}: ${room.num_guests} personne(s) - ${room.vip_level} - ${room.client_name}`
+).join('\n')}` : 
+    'ℹ️ Aucune chambre trouvée - Vérifiez les logs du serveur'
+}
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+❌ Erreur API des Chambres
+
+Status: ${response.status} ${response.statusText}
+Erreur: ${data.error || 'Erreur inconnue'}
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+❌ Erreur de connexion
+
+Erreur: ${error.message}
+                `;
+            }
+        }
+        
+        async function testSimple() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '🔍 Test simple en cours...';
+            
+            try {
+                // Test simple : récupérer toutes les réservations
+                const response = await fetch('/api/rooms/status');
+                const data = await response.json();
+                
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+🔍 Test Simple - Résultats
+
+📊 Réponse complète de l'API:
+${JSON.stringify(data, null, 2)}
+
+📋 Analyse:
+• Type de données: ${typeof data}
+• Est un tableau: ${Array.isArray(data)}
+• Longueur: ${Array.isArray(data) ? data.length : 'N/A'}
+• Premier élément: ${Array.isArray(data) && data.length > 0 ? JSON.stringify(data[0], null, 2) : 'Aucun'}
+
+💡 Si aucune chambre n'est affichée, vérifiez:
+1. Les logs du serveur Flask
+2. La structure de la base de données
+3. Les permissions d'accès
+                    `;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+❌ Erreur lors du test simple
+
+Erreur: ${error.message}
+                `;
+            }
+        }
+        
+        function clearResult() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

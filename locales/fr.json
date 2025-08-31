@@ -1,0 +1,171 @@
+{
+  "common": {
+    "dashboard": "Tableau de bord",
+    "clients": "Clients",
+    "current_clients": "Clients actuels",
+    "reservations": "Réservations",
+    "settings": "Paramètres",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "refresh": "Actualiser",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "view": "Voir",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "loading": "Chargement...",
+    "no_data": "Aucune donnée",
+    "actions": "Actions",
+    "status": "Statut",
+    "date": "Date",
+    "time": "Heure",
+    "room": "Chambre",
+    "client": "Client",
+    "reservation": "Réservation"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue sur le tableau de bord de l'hôtel Layana",
+    "greeting_morning": "Bonjour",
+    "greeting_afternoon": "Bon après-midi",
+    "greeting_evening": "Bonsoir",
+    "greeting_night": "Bonne nuit",
+    "today_arrivals": "Arrivées Aujourd'hui",
+    "today_departures": "Départs Aujourd'hui",
+    "arrivals": "Arrivées",
+    "departures": "Départs",
+    "system_status": "Statut du Système",
+    "calendar": "Calendrier des Réservations",
+    "day_details": "Détails de la Journée",
+    "quick_stats": {
+      "today_arrivals": "Arrivées Aujourd'hui",
+      "today_departures": "Départs Aujourd'hui",
+      "current_clients": "Clients Actuellement à l'Hôtel",
+      "rooms_occupied": "Chambres Utilisées"
+    },
+    "status": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "checking": "Vérification...",
+      "last_check": "Dernière vérification"
+    }
+  },
+  "clients": {
+    "title": "Gestion des Clients",
+    "subtitle": "Gérer les informations des clients de l'hôtel",
+    "new_client": "Nouveau Client",
+    "search_placeholder": "Rechercher par nom ou ID client...",
+    "table": {
+      "id": "ID",
+      "name": "Nom",
+      "title": "Titre",
+      "email": "Email",
+      "phone": "Téléphone",
+      "status": "Statut",
+      "stays": "Séjours",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "vip": "VIP"
+    },
+    "empty": "Aucun client n'a encore été ajouté.",
+    "search_empty": "Aucun client ne correspond à votre recherche."
+  },
+  "current_clients": {
+    "title": "Clients Actuels",
+    "subtitle": "Gérer les clients actuellement présents à l'hôtel",
+    "search_placeholder": "Rechercher par numéro de chambre ou nom...",
+    "room": "Chambre",
+    "client_name": "Nom du Client",
+    "check_in": "Arrivée",
+    "check_out": "Départ",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "reservations": {
+    "title": "Gestion des Réservations",
+    "subtitle": "Gérer les réservations et les chambres de l'hôtel",
+    "new_reservation": "Nouvelle Réservation",
+    "search_placeholder": "Rechercher par nom client, ID réservation ou chambre...",
+    "filter_all_statuses": "Tous les statuts",
+    "quick_stats": {
+      "today": "Aujourd'hui",
+      "in_progress": "En cours",
+      "future": "Futures"
+    },
+    "table": {
+      "id": "ID Réservation",
+      "client": "Client",
+      "room": "Chambre",
+      "check_in": "Arrivée",
+      "check_out": "Départ",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "confirmed": "Confirmée",
+      "pending": "En attente",
+      "cancelled": "Annulée",
+      "completed": "Terminée"
+    },
+    "empty": "Aucune réservation n'a encore été ajoutée.",
+    "search_empty": "Aucune réservation ne correspond à votre recherche."
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion",
+    "email": "Adresse email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "first_name": "Prénom",
+    "last_name": "Nom de famille",
+    "role_code": "Code de rôle",
+    "sign_in": "Se connecter",
+    "sign_up": "S'inscrire",
+    "forgot_password": "Mot de passe oublié ?",
+    "no_account": "Pas encore de compte ?",
+    "has_account": "Déjà un compte ?",
+    "role_codes": {
+      "admin": "Administrateur",
+      "manager": "Manager",
+      "reception": "Réception",
+      "staff": "Personnel"
+    }
+  },
+  "calendar": {
+    "months": [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ],
+    "days": [
+      "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"
+    ],
+    "days_short": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+    "previous_month": "Mois précédent",
+    "next_month": "Mois suivant",
+    "no_events": "Aucun événement",
+    "arrivals": "Arrivées",
+    "departures": "Départs",
+    "guests": "Clients"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur",
+    "items_found": "élément(s) trouvé(s)"
+  },
+  "notifications": {
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Attention",
+    "info": "Information"
+  }
+}
