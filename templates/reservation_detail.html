@@ -24,6 +24,24 @@
             <button class="btn btn-primary" onclick="changeRoom('{{ reservation.resv_name_id }}')">
                 <i class="fas fa-door-open"></i> Changer chambre
             </button>
+            
+            <!-- Boutons de changement de statut -->
+            <div class="status-actions">
+                {% if reservation.statut == 'futures' %}
+                    <div class="status-info">
+                        <i class="fas fa-clock"></i>
+                        <span>Arrivée automatique prévue</span>
+                    </div>
+                {% elif reservation.statut == 'jour' %}
+                    <button class="btn btn-success" onclick="changeReservationStatus('{{ reservation.resv_name_id }}', 'en_cours')" title="Client installé à l'hôtel">
+                        <i class="fas fa-bed"></i> En séjour
+                    </button>
+                {% elif reservation.statut == 'en_cours' %}
+                    <button class="btn btn-warning" onclick="changeReservationStatus('{{ reservation.resv_name_id }}', 'terminee')" title="Client parti de l'hôtel">
+                        <i class="fas fa-sign-out-alt"></i> Départ
+                    </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 

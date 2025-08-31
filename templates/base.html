@@ -10,7 +10,6 @@
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     
     <!-- JavaScript -->
-
     <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
 <body>
@@ -23,23 +22,23 @@
             <nav class="nav">
                 <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-home"></i>
-                    <span>Tableau de bord</span>
+                    <span>{{ get_text('common.dashboard') }}</span>
                 </a>
                 <a href="{{ url_for('clients') }}" class="nav-item {% if request.endpoint == 'clients' %}active{% endif %}">
                     <i class="fas fa-users"></i>
-                    <span>Clients</span>
+                    <span>{{ get_text('common.clients') }}</span>
                 </a>
                 <a href="{{ url_for('clients_actuels') }}" class="nav-item {% if request.endpoint == 'clients_actuels' %}active{% endif %}">
                     <i class="fas fa-bed"></i>
-                    <span>Clients actuels</span>
+                    <span>{{ get_text('common.current_clients') }}</span>
                 </a>
                 <a href="{{ url_for('reservations') }}" class="nav-item {% if request.endpoint == 'reservations' %}active{% endif %}">
                     <i class="fas fa-calendar-check"></i>
-                    <span>Réservations</span>
+                    <span>{{ get_text('common.reservations') }}</span>
                 </a>
                 <a href="{{ url_for('settings') }}" class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
                     <i class="fas fa-cog"></i>
-                    <span>Paramètres</span>
+                    <span>{{ get_text('common.settings') }}</span>
                 </a>
             </nav>
         </div>
@@ -50,15 +49,50 @@
                 <span class="date-text">{{ current_date }}</span>
             </div>
             
-            <div class="notifications">
+            <div class="notifications" onclick="toggleNotificationsMenu()">
                 <i class="fas fa-bell"></i>
-                <span class="notification-badge">3</span>
+                <span class="notification-badge">0</span>
+                <div class="notifications-menu" id="notifications-menu">
+                    <div class="notifications-header">
+                        <h4><i class="fas fa-bell"></i> Notifications</h4>
+                        <button class="notifications-close" onclick="toggleNotificationsMenu()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="notifications-content">
+                        <div class="notifications-coming-soon">
+                            <div class="coming-soon-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="coming-soon-text">
+                                <h5>Fonctionnalité à venir</h5>
+                                <p>Le système de notifications sera bientôt disponible !</p>
+                                <p class="coming-soon-details">Restez connectés pour découvrir les nouvelles fonctionnalités de gestion des alertes et notifications en temps réel.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="theme-toggle">
-                <button class="theme-btn" onclick="toggleTheme()" title="Changer de thème">
-                    <i class="fas fa-sun" id="theme-icon"></i>
+
+            
+
+            
+            <div class="language-selector">
+                <button class="language-btn" onclick="toggleLanguageMenu()" title="Changer de langue">
+                    <i class="fas fa-globe"></i>
+                    <span class="current-lang">{{ 'EN' if language == 'en' else 'FR' }}</span>
                 </button>
+                <div class="language-menu" id="language-menu">
+                    <a href="{{ url_for('change_language', language='fr') }}" class="language-option {% if language == 'fr' %}active{% endif %}">
+                        <span class="flag">🇫🇷</span>
+                        <span>Français</span>
+                    </a>
+                    <a href="{{ url_for('change_language', language='en') }}" class="language-option {% if language == 'en' %}active{% endif %}">
+                        <span class="flag">🇬🇧</span>
+                        <span>English</span>
+                    </a>
+                </div>
             </div>
             
             <div class="user-profile">
@@ -66,9 +100,9 @@
                 <span class="user-name">{{ session.get('user_name', session.get('user_email', 'Réception')) }}</span>
                 <div class="user-menu">
                     <div class="user-role">{{ session.get('user_role', 'Utilisateur') }}</div>
-                    <a href="{{ url_for('auth_logout') }}" class="logout-btn" title="Se déconnecter">
+                    <a href="{{ url_for('auth_logout') }}" class="logout-btn" title="{{ get_text('auth.logout') }}">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
+                        <span>{{ get_text('auth.logout') }}</span>
                     </a>
                 </div>
             </div>
@@ -108,5 +142,89 @@
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Chat Bot Toggle Button (Floating) -->
+    <div class="chat-toggle-floating" onclick="toggleChat()" title="Ouvrir le chat">
+        <i class="fas fa-chevron-left"></i>
+        <span class="chat-badge" id="chat-badge" style="display: none;">0</span>
+    </div>
+    
+    <!-- Chat Bot Widget -->
+    <div id="chat-widget" class="chat-widget">
+        <div class="chat-header">
+            <div class="chat-title">
+                <i class="fas fa-robot"></i>
+                <span>Assistant AYORA</span>
+            </div>
+            <div class="chat-controls">
+                <button class="chat-minimize" onclick="toggleChat()" title="Masquer le chat">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="chat-close" onclick="closeChat()" title="Fermer le chat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-text">
+                        Bonjour ! Je suis votre assistant AYORA avec intelligence artificielle. Je peux répondre à vos questions sur les clients, réservations, alertes, allergies et plus encore. Comment puis-je vous aider aujourd'hui ?
+                    </div>
+                    <div class="message-time" id="bot-welcome-time"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <div class="input-container">
+                <input type="text" id="chat-input-field" placeholder="Tapez votre message..." maxlength="500">
+                <button class="send-button" onclick="sendMessage()" title="Envoyer">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="chat-suggestions">
+                <button class="suggestion-btn" onclick="sendSuggestion('Qui est actuellement à l\'hôtel ?')">
+                    Clients actuels
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Y a-t-il des allergies ou préférences alimentaires ?')">
+                    Allergies & Préférences
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Quels sont les clients VIP ?')">
+                    Clients VIP
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Y a-t-il des alertes actives ?')">
+                    Alertes
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Donne-moi des statistiques d\'occupation')">
+                    Statistiques
+                </button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Quel est le personnel disponible ?')">
+                    Personnel
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <img src="{{ url_for('static', filename='images/imageAYORA.png') }}" alt="AYORA Logo" class="ayora-logo">
+                </div>
+            </div>
+                                <div class="footer-right">
+                        <div class="footer-copyright">
+                            <p>&copy; 2025 AYORA. Tous droits réservés.</p>
+                        </div>
+                    </div>
+        </div>
+    </footer>
 </body>
 </html>
+
